@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Parcial - Patrones :p</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#344767",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary": "#000b21",
+                        "on-primary-fixed": "#051b39",
+                        "background": "#f7f9fb",
+                        "ink-slate": "#0F172A",
+                        "primary-fixed": "#d6e3ff",
+                        "primary": "#000b21",
+                        "on-tertiary-fixed-variant": "#2d4772",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-tertiary-fixed": "#001b3f",
+                        "outline-variant": "#c4c6ce",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "inverse-primary": "#b4c7ed",
+                        "gold-glow": "#F0E5CF",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-container": "#00214b",
+                        "outline": "#75777e",
+                        "on-primary-container": "#778aad",
+                        "primary-container": "#0d2240",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "surface": "#f7f9fb",
+                        "hairline-slate": "#CBD5E1",
+                        "secondary": "#775a19",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary-container": "#718ab9",
+                        "on-background": "#191c1e",
+                        "surface-tint": "#4c5f80",
+                        "surface-dim": "#d8dadc",
+                        "muted-steel": "#475569",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#fed488",
+                        "on-tertiary": "#ffffff",
+                        "status-open-down": "#EF4444",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed": "#ffdea5",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#aec7fa",
+                        "on-secondary-fixed": "#261900",
+                        "status-closed-up": "#10B981",
+                        "tertiary-fixed": "#d7e3ff",
+                        "surface-variant": "#e0e3e5",
+                        "status-half-open": "#F59E0B",
+                        "primary-fixed-dim": "#b4c7ed",
+                        "on-surface-variant": "#44474e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "baseline": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-bold": ["Inter"],
+                        "body-base": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "code-data": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-bold": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-base": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-data": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background font-body-base antialiased min-h-screen flex">
+    <!-- SideNavBar -->
+    <!-- Main Content Canvas -->
+    <main class="flex-1 flex flex-col min-h-screen">
+        <!-- TopNavBar -->
+        <header
+            class="bg-surface flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 z-50 border-b border-hairline-slate bg-surface-container-lowest sticky top-0">
+            <div class="flex items-center space-x-md">
+                <span class="text-body-bold font-body-bold tracking-tighter text-primary">BANCO DHABI | CORE
+                    SENTINEL</span>
+            </div>
+            <div class="flex items-center space-x-lg">
+                <nav class="hidden lg:flex space-x-lg items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 rounded-full bg-status-closed-up pulse-dot"></div>
+                        <span class="text-label-caps font-label-caps text-status-closed-up">API: EN LÍNEA</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div id="nav-aldeamo-dot" class="w-2 h-2 rounded-full bg-status-closed-up pulse-dot"></div>
+                        <span id="nav-aldeamo-status" class="text-label-caps font-label-caps text-status-closed-up">Aldeamo: EN LÍNEA</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div id="nav-twilio-dot" class="w-2 h-2 rounded-full bg-status-closed-up pulse-dot"></div>
+                        <span id="nav-twilio-status" class="text-label-caps font-label-caps text-status-closed-up">Twilio: EN LÍNEA</span>
+                    </div>
+                </nav>
+                <div class="flex items-center space-x-sm text-primary">
+                    <button class="p-xs hover:bg-surface-container-low rounded transition-colors duration-200">
+                        <span class="material-symbols-outlined">notifications_active</span>
+                    </button>
+                    <button class="p-xs hover:bg-surface-container-low rounded transition-colors duration-200">
+                        <span class="material-symbols-outlined">emergency_home</span>
+                    </button>
+                    <button class="p-xs hover:bg-surface-container-low rounded transition-colors duration-200">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <!-- Dashboard Content -->
+        <div class="p-margin-mobile md:p-margin-desktop flex-1 max-w-[1280px] mx-auto w-full space-y-xl">
+            <!-- Health Summary Widget -->
+            <section
+                class="bg-surface-container-lowest border border-hairline-slate rounded-DEFAULT p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
+                <div>
+                    <h2 class="text-headline-md-mobile md:text-headline-md font-headline-md text-ink-slate mb-xs">
+                        Panel de Monitoreo de Resiliencia</h2>
+                    <p class="text-body-base font-body-base text-muted-steel">Telemetría en vivo para la entrega de OTP y sincronización del sistema.</p>
+                </div>
+                <div id="main-cb-bg"
+                    class="flex items-center bg-surface-container-low border border-status-closed-up/30 px-lg py-md rounded-DEFAULT shadow-sm">
+                    <div id="main-cb-dot" class="w-3 h-3 rounded-full bg-status-closed-up pulse-dot mr-sm"></div>
+                    <div class="flex flex-col">
+                        <span id="main-cb-status" class="text-label-caps font-label-caps text-status-closed-up">ESTADO: CERRADO</span>
+                        <span id="main-cb-text" class="text-body-bold font-body-bold text-ink-slate">OPERACIÓN NORMAL</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+                <!-- Provider Comparison (Bulkhead Left) -->
+                <div class="xl:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                    <!-- Primary Provider -->
+                    <div
+                        class="bg-surface-container-lowest border border-hairline-slate rounded-DEFAULT p-md flex flex-col relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 bg-surface-tint text-on-primary px-sm py-xs text-label-caps font-label-caps rounded-bl">
+                            PRIMARIO</div>
+                        <h3 class="text-body-bold font-body-bold text-ink-slate mb-lg flex items-center">
+                            <span class="material-symbols-outlined mr-sm text-muted-steel">cell_tower</span>
+                            Aldeamo
+                        </h3>
+                        <div class="space-y-md flex-1 flex flex-col">
+                            <div>
+                                <div
+                                    class="flex justify-between text-label-caps font-label-caps text-muted-steel mb-xs">
+                                    <span>Tasa de Éxito (%)</span>
+                                    <span id="aldeamo-success-text" class="text-status-closed-up">0.0%</span>
+                                </div>
+                                <div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+                                    <div id="aldeamo-success-bar" class="h-full bg-status-closed-up w-[0%] transition-all duration-500"></div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex justify-between items-end mt-auto pt-sm border-t border-hairline-slate border-dashed">
+                                <span class="text-label-caps font-label-caps text-muted-steel">Total Envíos</span>
+                                <span id="aldeamo-total-text" class="text-code-data font-code-data text-ink-slate">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Backup Provider -->
+                    <div
+                        class="bg-surface-container-lowest border border-hairline-slate rounded-DEFAULT p-md flex flex-col relative overflow-hidden opacity-90">
+                        <div
+                            class="absolute top-0 right-0 bg-surface-container-high text-muted-steel px-sm py-xs text-label-caps font-label-caps border-l border-b border-hairline-slate rounded-bl">
+                            RESPALDO</div>
+                        <h3 class="text-body-bold font-body-bold text-ink-slate mb-lg flex items-center">
+                            <span class="material-symbols-outlined mr-sm text-muted-steel">backup</span>
+                            Twilio
+                        </h3>
+                        <div class="space-y-md flex-1 flex flex-col">
+                            <div>
+                                <div
+                                    class="flex justify-between text-label-caps font-label-caps text-muted-steel mb-xs">
+                                    <span>Tasa de Éxito (%)</span>
+                                    <span id="twilio-success-text" class="text-muted-steel">0.0%</span>
+                                </div>
+                                <div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+                                    <div id="twilio-success-bar" class="h-full bg-muted-steel w-[0%] transition-all duration-500"></div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex justify-between items-end mt-auto pt-sm border-t border-hairline-slate border-dashed">
+                                <span class="text-label-caps font-label-caps text-muted-steel">Total Envíos</span>
+                                <span id="twilio-total-text"
+                                    class="text-code-data font-code-data text-ink-slate text-opacity-50">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CQRS Data Flow (Bulkhead Right) -->
+                <div
+                    class="xl:col-span-4 bg-surface-container-lowest border border-hairline-slate rounded-DEFAULT p-md flex flex-col">
+                    <h3 class="text-body-bold font-body-bold text-ink-slate mb-md flex items-center">
+                        <span class="material-symbols-outlined mr-sm text-primary">account_tree</span>
+                        Flujo CQRS/Eventual
+                    </h3>
+                    <div
+                        class="flex-1 bg-surface-container-low p-md border border-hairline-slate border-dashed rounded relative overflow-hidden flex items-center justify-center">
+                        <div class="mermaid text-[8px] md:text-[10px] w-full">
+---
+config:
+  look: handDrawn
+  theme: neo
+  fontFamily: 'JetBrains Mono, monospace'
+---
+flowchart LR
+  subgraph Cliente["Canales digitales"]
+    app["Apps/Web/Canales"]
+  end
+
+  subgraph CommandSide["CQRS - Comandos"]
+    auth["Servicio de Autorización"]
+    cmd["Servicio OTP"]
+    sql[(SQL DB)]
+    outbox["Outbox/WAL"]
+  end
+
+  subgraph ReadSide["CQRS - Consultas"]
+    projector["Proyector"]
+    mongo[(NoSQL View)]
+    query["Servicio API"]
+  end
+
+  subgraph Sms["Proveedores SMS"]
+    cb["Circuit Breaker"]
+    aldeamo["Aldeamo (8001)"]
+    twilio["Twilio (8002)"]
+  end
+
+  app --> auth --> cmd
+  cmd --> sql --> outbox --> projector --> mongo --> query --> app
+
+  cmd --> cb --> aldeamo
+  cb --> twilio
+                        </div>
+                    </div>
+                    <div class="mt-md text-center">
+                        <span id="cqrs-status"
+                            class="inline-flex items-center text-label-caps font-label-caps text-status-closed-up bg-status-closed-up/10 px-sm py-xs rounded">
+                            <span class="material-symbols-outlined mr-xs text-[14px]">check_circle</span>
+                            Consistencia: Sincronizada
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- Transaction Stream -->
+            <div class="bg-surface-container-lowest border border-hairline-slate rounded-DEFAULT overflow-hidden">
+                <div
+                    class="px-md py-sm border-b border-hairline-slate bg-surface-container-low flex justify-between items-center">
+                    <h3 class="text-body-bold font-body-bold text-ink-slate flex items-center">
+                        <span class="material-symbols-outlined mr-sm text-primary">list_alt</span>
+                        Stream de Transacciones OTP
+                    </h3>
+                    <span class="text-label-caps font-label-caps text-muted-steel flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-status-closed-up pulse-dot mr-xs"></div> En vivo
+                    </span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-surface text-label-caps font-label-caps text-muted-steel border-b border-hairline-slate">
+                                <th class="py-sm px-md font-normal">MARCA DE TIEMPO</th>
+                                <th class="py-sm px-md font-normal">TX_ID</th>
+                                <th class="py-sm px-md font-normal">PROVEEDOR</th>
+                                <th class="py-sm px-md font-normal">DESTINO</th>
+                                <th class="py-sm px-md font-normal text-right">ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tx-table-body" class="text-code-data font-code-data text-ink-slate">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Simulator Panel -->
+        <div
+            class="fixed bottom-4 right-4 bg-surface-container-lowest border border-hairline-slate rounded-xl p-4 shadow-lg z-50 w-80">
+            <h4 class="text-body-bold font-body-bold text-ink-slate mb-2">Simulador de Tráfico</h4>
+            <div class="space-y-2">
+                <button onclick="getTokenAndSend(1)"
+                    class="w-full bg-primary text-on-primary py-2 rounded text-label-caps hover:bg-primary-container transition-colors">Enviar
+                    1 OTP</button>
+                <button onclick="getTokenAndSend(5)"
+                    class="w-full bg-surface-tint text-on-primary py-2 rounded text-label-caps hover:bg-muted-steel transition-colors">Enviar
+                    5 OTPs</button>
+                <button onclick="getTokenAndSend(20)"
+                    class="w-full bg-status-open-down text-on-primary py-2 rounded text-label-caps hover:bg-red-700 transition-colors">Estrés:
+                    20 OTPs</button>
+            </div>
+            <div id="sim-status" class="mt-2 text-code-data font-code-data text-muted-steel text-center"></div>
+        </div>
+
+    </main>
+
+    <script>
+        let currentToken = null;
+        async function ensureToken() {
+            if (currentToken) return true;
+            try {
+                const resp = await fetch('/api/auth/token/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: 'app_web', client_secret: 'secret_web_123' })
+                });
+                const data = await resp.json();
+                if (resp.ok) {
+                    currentToken = data.access_token;
+                    return true;
+                }
+            } catch (e) { }
+            return false;
+        }
+
+        async function getTokenAndSend(count) {
+            const statusEl = document.getElementById('sim-status');
+            statusEl.textContent = 'Obteniendo token...';
+            if (!(await ensureToken())) {
+                statusEl.textContent = 'Error auth';
+                return;
+            }
+
+            let sent = 0, failed = 0;
+            for (let i = 0; i < count; i++) {
+                statusEl.textContent = `Enviando ${i + 1}/${count}...`;
+                const phone = `+57300${Math.floor(1000000 + Math.random() * 9000000)}`;
+                try {
+                    const resp = await fetch('/api/otp/send/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + currentToken
+                        },
+                        body: JSON.stringify({ phone_number: phone })
+                    });
+                    const data = await resp.json();
+                    if (data.status === 'SENT') sent++; else failed++;
+                    refreshDashboard();
+                } catch (e) { failed++; }
+            }
+            statusEl.textContent = `✅ ${sent} OK, ❌ ${failed} Fallos`;
+        }
+
+        // Data fetching and UI updates
+        async function refreshDashboard() {
+            if (!currentToken) await ensureToken();
+            if (!currentToken) return;
+
+            fetch('/api/system/circuit-breaker/', { headers: { 'Authorization': 'Bearer ' + currentToken } })
+                .then(r => r.json())
+                .then(data => updateCBUI(data.live));
+
+            fetch('/api/otp/?limit=10', { headers: { 'Authorization': 'Bearer ' + currentToken } })
+                .then(r => r.json())
+                .then(data => updateTableUI(data.results));
+
+            fetch('/api/system/outbox/', { headers: { 'Authorization': 'Bearer ' + currentToken } })
+                .then(r => r.json())
+                .then(data => updateCQRSUI(data.stats));
+
+            fetch('/api/system/provider-stats/', { headers: { 'Authorization': 'Bearer ' + currentToken } })
+                .then(r => r.json())
+                .then(data => updateProviderStatsUI(data));
+        }
+
+        function updateProviderStatsUI(stats) {
+            const aldeamo = stats.ALDEAMO || {total: 0, success_rate: 0};
+            const twilio = stats.TWILIO || {total: 0, success_rate: 0};
+
+            document.getElementById('aldeamo-total-text').textContent = aldeamo.total;
+            document.getElementById('aldeamo-success-text').textContent = aldeamo.success_rate + '%';
+            document.getElementById('aldeamo-success-bar').style.width = aldeamo.success_rate + '%';
+
+            document.getElementById('twilio-total-text').textContent = twilio.total;
+            document.getElementById('twilio-success-text').textContent = twilio.success_rate + '%';
+            if (twilio.total > 0) {
+                document.getElementById('twilio-success-bar').style.width = twilio.success_rate + '%';
+                document.getElementById('twilio-success-text').className = 'text-status-closed-up';
+                document.getElementById('twilio-success-bar').className = 'h-full bg-status-closed-up transition-all duration-500';
+            }
+        }
+
+        function updateCBUI(liveData) {
+            const aldeamo = liveData.ALDEAMO || {};
+
+            const cbBg = document.getElementById('main-cb-bg');
+            const cbDot = document.getElementById('main-cb-dot');
+            const cbStatus = document.getElementById('main-cb-status');
+            const cbText = document.getElementById('main-cb-text');
+
+            if (aldeamo.state === 'OPEN') {
+                cbBg.className = 'flex items-center bg-error-container/20 border border-status-open-down/30 px-lg py-md rounded-DEFAULT shadow-sm';
+                cbDot.className = 'w-3 h-3 rounded-full bg-status-open-down pulse-dot mr-sm';
+                cbStatus.className = 'text-label-caps font-label-caps text-status-open-down';
+                cbStatus.textContent = 'ESTADO: ABIERTO';
+                cbText.textContent = 'INTERRUPCIÓN ACTIVA';
+
+                document.getElementById('nav-aldeamo-dot').className = 'w-2 h-2 rounded-full bg-status-open-down pulse-dot';
+                document.getElementById('nav-aldeamo-status').className = 'text-label-caps font-label-caps text-status-open-down';
+                document.getElementById('nav-aldeamo-status').textContent = 'Aldeamo: DESCONECTADO';
+            } else {
+                cbBg.className = 'flex items-center bg-surface-container-low border border-status-closed-up/30 px-lg py-md rounded-DEFAULT shadow-sm';
+                cbDot.className = 'w-3 h-3 rounded-full bg-status-closed-up pulse-dot mr-sm';
+                cbStatus.className = 'text-label-caps font-label-caps text-status-closed-up';
+                cbStatus.textContent = 'ESTADO: CERRADO';
+                cbText.textContent = 'OPERACIÓN NORMAL';
+
+                document.getElementById('nav-aldeamo-dot').className = 'w-2 h-2 rounded-full bg-status-closed-up pulse-dot';
+                document.getElementById('nav-aldeamo-status').className = 'text-label-caps font-label-caps text-status-closed-up';
+                document.getElementById('nav-aldeamo-status').textContent = 'Aldeamo: EN LÍNEA';
+            }
+        }
+
+        function updateTableUI(results) {
+            const tbody = document.getElementById('tx-table-body');
+            if (!results || results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-sm px-md text-center text-muted-steel">Sin transacciones recientes</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = results.map(r => {
+                const time = new Date(r.created_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+
+                let providerIcon = 'cell_tower';
+                let providerColor = 'text-muted-steel';
+                if (r.provider_used === 'TWILIO') {
+                    providerIcon = 'backup';
+                }
+
+                let statusBadge = '';
+                if (r.status === 'SENT') {
+                    statusBadge = '<span class="text-label-caps font-label-caps text-status-closed-up bg-status-closed-up/10 px-xs py-px rounded">ENTREGADO</span>';
+                } else if (r.status === 'FAILED') {
+                    statusBadge = '<span class="text-label-caps font-label-caps text-status-open-down bg-status-open-down/10 px-xs py-px rounded">NO_ENTREGADO</span>';
+                } else {
+                    statusBadge = '<span class="text-label-caps font-label-caps text-status-half-open bg-status-half-open/10 px-xs py-px rounded">REINTENTANDO</span>';
+                }
+
+                return `
+        <tr class="border-b border-hairline-slate/50 hover:bg-surface-container-lowest transition-colors">
+            <td class="py-sm px-md text-muted-steel">${time}</td>
+            <td class="py-sm px-md">${r.otp_id.slice(0, 11)}</td>
+            <td class="py-sm px-md flex items-center">
+                <span class="material-symbols-outlined text-[16px] mr-xs ${providerColor}">${providerIcon}</span> ${r.provider_used || 'None'}
+            </td>
+            <td class="py-sm px-md">${r.phone_number}</td>
+            <td class="py-sm px-md text-right">${statusBadge}</td>
+        </tr>
+        `;
+            }).join('');
+        }
+
+        function updateCQRSUI(stats) {
+            const cqrsStatus = document.getElementById('cqrs-status');
+            if (!stats) return;
+            if (stats.pending === 0) {
+                cqrsStatus.innerHTML = '<span class="material-symbols-outlined mr-xs text-[14px]">check_circle</span> Consistencia: Sincronizada';
+                cqrsStatus.className = 'inline-flex items-center text-label-caps font-label-caps text-status-closed-up bg-status-closed-up/10 px-sm py-xs rounded';
+            } else {
+                cqrsStatus.innerHTML = '<span class="material-symbols-outlined mr-xs text-[14px]">sync</span> Sincronizando... (' + stats.pending + ' pendientes)';
+                cqrsStatus.className = 'inline-flex items-center text-label-caps font-label-caps text-status-half-open bg-status-half-open/10 px-sm py-xs rounded';
+            }
+        }
+
+        setInterval(refreshDashboard, 2000);
+        window.onload = refreshDashboard;
+    </script>
+
+</body>
+
+</html>
