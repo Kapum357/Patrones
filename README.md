@@ -1,7 +1,7 @@
 # OTP CQRS — Sistema de Notificaciones
 
 Prototipo que demuestra patrones de diseño empresariales en Django:
-**CQRS**, **Outbox/WAL**, **Circuit Breaker + Bulkhead**, y **dual-database (SQL + MongoDB)**.
+**CQRS**, **Outbox/WAL**, **Procesamiento Asíncrono (Worker)**, **Circuit Breaker + Bulkhead**, **Microservicios** y **dual-database (SQL + MongoDB)**.
 
 ## Arquitectura
 
@@ -9,8 +9,7 @@ Prototipo que demuestra patrones de diseño empresariales en Django:
 ---
 config:
   look: handDrawn
-  theme: neo
-  fontFamily: '''Source Code Pro Variable'', monospace'
+  fontFamily: '"Source Code Pro Variable", monospace'
 ---
 flowchart LR
   subgraph Cliente["Canales digitales"]
@@ -22,7 +21,16 @@ flowchart LR
     cmd["Servicio OTP (Comandos)"]
     sql[(SQL OTP Requests)]
     outbox["Outbox/WAL"]
-    webhook["Webhook Receiver"]
+  end
+
+  subgraph AsyncProcessing["Procesamiento Asíncrono"]
+    worker["SMS Worker (Polling)"]
+    cb["Circuit Breaker + Bulkhead"]
+  end
+
+  subgraph Microservicios["Proveedores Externos (APIs)"]
+    aldeamo["Aldeamo (Puerto 8001)"]
+    twilio["Twilio (Puerto 8002)"]
   end
 
   subgraph ReadSide["CQRS - Consultas"]
@@ -31,33 +39,30 @@ flowchart LR
     query["Servicio OTP (Consultas)"]
   end
 
-  subgraph Sms["Proveedores SMS"]
-    cb["Circuit Breaker + Bulkhead"]
-    aldeamo["Aldeamo (Primario)"]
-    twilio["Twilio (Fallback)"]
-  end
-
   app --> auth --> cmd
-  cmd --> sql --> outbox --> projector --> mongo --> query --> app
-
-  cmd --> cb --> aldeamo
-  cb --> twilio
-
-  aldeamo --> webhook --> sql
-  twilio --> webhook
+  cmd --> sql
+  cmd --> outbox
+  
+  outbox --> projector --> mongo --> query --> app
+  
+  sql --> worker
+  worker --> cb
+  cb --> aldeamo
+  cb -. "Fallback" .-> twilio
 ```
 
 ## Patrones Implementados
 
 | Patrón | Implementación |
 |--------|---------------|
-| CQRS | Command Service escribe SQL; Query Service lee MongoDB |
-| Outbox/WAL | `OutboxEvent` escrito atómicamente con `OtpRequest` |
-| Projection | `run_projector` polling → upsert MongoDB |
-| Circuit Breaker | `pybreaker` wrapping Aldeamo; fallback a Twilio |
-| Bulkhead | `threading.Semaphore` por proveedor |
-| JWT Auth | `PyJWT` + DRF authentication class |
-| Dual DB | SQLite (write side) + MongoDB (read side) |
+| CQRS | Command Service escribe en SQL; Query Service lee de MongoDB de forma optimizada |
+| Procesamiento Asíncrono | `SMS Worker` lee en background los eventos `PENDING` para no bloquear el request |
+| Outbox/WAL | `OutboxEvent` escrito atómicamente con `OtpRequest` en SQL |
+| Consistencia Eventual | `Outbox Projector` sincroniza los eventos desde SQL hacia MongoDB asíncronamente |
+| Circuit Breaker | `pybreaker` envolviendo llamadas a microservicios; fallback automático a Twilio si Aldeamo cae |
+| Bulkhead | `threading.Semaphore` limitando concurrencia por proveedor para evitar agotamiento de recursos |
+| Microservicios | Aldeamo y Twilio extraídos a servidores web independientes (Puertos 8001 y 8002) |
+| Dual DB | SQLite (Transactional Write-side) + MongoDB (Read-side optimizado) |
 
 ## Instalación
 
@@ -66,27 +71,33 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
+Asegúrate de tener MongoDB ejecutándose localmente en el puerto `27017` (sin autenticación).
+
 ## Uso
 
-### 1. Iniciar el servidor Django
+### 1. Iniciar Microservicios Externos (Terminales separadas)
+
+Inicia los simuladores de los proveedores externos en puertos independientes:
 
 ```bash
-python manage.py runserver
+python services/aldeamo/main.py   # Puerto 8001
+python services/twilio/main.py    # Puerto 8002
 ```
 
-### 2. Iniciar el Proyector Outbox (terminal separada)
+### 2. Iniciar Core (Django + Projector + Worker)
+
+Puedes iniciar todos los componentes internos con un solo comando:
 
 ```bash
-python manage.py run_projector
-# o con intervalo personalizado:
-python manage.py run_projector --interval 5
+python manage.py run_all
 ```
+*(Esto levantará el Servidor Web en 8000, el Proyector CQRS y el SMS Worker en hilos de fondo).*
 
 ### 3. Dashboard
 
-Abre: http://localhost:8000/dashboard/
+Abre en tu navegador: http://localhost:8000/dashboard/
 
-### 4. API REST
+## API REST
 
 #### Obtener token JWT
 ```bash
@@ -95,15 +106,16 @@ curl -X POST http://localhost:8000/api/auth/token/ \
   -d '{"client_id": "demo", "client_secret": "demo"}'
 ```
 
-#### Enviar OTP (Comando)
+#### Enviar OTP (Comando Asíncrono)
 ```bash
 curl -X POST http://localhost:8000/api/otp/send/ \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"phone_number": "+573001234567"}'
 ```
+*(Retornará `202 ACCEPTED` inmediatamente)*
 
-#### Consultar OTPs (lee MongoDB)
+#### Consultar OTPs (Consultas Rápidas en MongoDB)
 ```bash
 curl http://localhost:8000/api/otp/ \
   -H "Authorization: Bearer <TOKEN>"
@@ -115,73 +127,44 @@ curl http://localhost:8000/api/system/circuit-breaker/ \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
-#### Estadísticas Outbox
+#### Estadísticas CQRS Outbox
 ```bash
 curl http://localhost:8000/api/system/outbox/ \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
-## Clientes JWT predefinidos
-
-| client_id | client_secret |
-|-----------|--------------|
-| app_web | secret_web_123 |
-| app_mobile | secret_mobile_456 |
-| demo | demo |
-
-## Configuración (parcial/settings.py)
-
-| Setting | Default | Descripción |
-|---------|---------|-------------|
-| `MONGODB_URI` | mongodb://localhost:27017 | Conexión MongoDB |
-| `MONGODB_DB_NAME` | otp_cqrs | Base de datos MongoDB |
-| `ALDEAMO_FAILURE_RATE` | 0.3 | Tasa de fallo Aldeamo (0.0-1.0) |
-| `TWILIO_FAILURE_RATE` | 0.05 | Tasa de fallo Twilio (0.0-1.0) |
-| `CIRCUIT_BREAKER_FAIL_MAX` | 3 | Fallos antes de abrir el circuito |
-| `CIRCUIT_BREAKER_RESET_TIMEOUT` | 30 | Segundos antes de half-open |
-| `JWT_EXPIRY_SECONDS` | 3600 | TTL del token JWT |
-
 ## Demostrar el Circuit Breaker
 
-1. Cambiar `ALDEAMO_FAILURE_RATE = 1.0` en settings.py
-2. Enviar múltiples OTPs desde el dashboard (botón "Estrés: 20 OTPs")
-3. Observar el Circuit Breaker de Aldeamo cambiar de CLOSED → OPEN
-4. Ver que los envíos usan automáticamente Twilio como fallback
-5. Después de 30s, el circuito pasa a HALF_OPEN y vuelve a intentar Aldeamo
+1. Usa el panel de **"Simulador de Tráfico"** en el Dashboard para enviar "5 OTPs".
+2. Si un microservicio (ej. Aldeamo) falla 3 veces consecutivas, su Circuit Breaker cambiará de estado `CLOSED` a `OPEN`.
+3. Verás en vivo cómo los envíos usan automáticamente Twilio (`Fallback`).
+4. Después de 30 segundos, el circuito pasará a `HALF_OPEN` e intentará enviar un mensaje a Aldeamo nuevamente para probar si ya se recuperó.
 
 ## Estructura del Proyecto
 
-```
+```text
 Patrones/
 ├── manage.py
 ├── requirements.txt
-├── test_integration.py     ← Suite de pruebas
-├── test_projector.py       ← Test del proyector
 ├── parcial/
 │   ├── settings.py         ← Configuración central
-│   ├── urls.py
 │   └── templates/
-│       └── dashboard.html  ← Dashboard de monitoreo
-├── otp/                    ← Motor CQRS principal
-│   ├── models.py           ← OtpRequest, OutboxEvent, CircuitBreakerState
-│   ├── admin.py
-│   ├── auth.py             ← Servicio JWT
+│       └── dashboard.html  ← Dashboard de monitoreo interactivo
+├── otp/                    ← Motor principal del banco (Sentinel)
+│   ├── models.py           ← Modelos SQL
 │   ├── mongo.py            ← Conexión MongoDB
 │   ├── views.py            ← REST API endpoints
-│   ├── urls.py
-│   ├── serializers.py
-│   ├── dashboard_views.py
-│   ├── dashboard_urls.py
 │   ├── services/
-│   │   ├── command_service.py  ← Escribe SQL + Outbox
-│   │   ├── query_service.py    ← Lee MongoDB
-│   │   ├── sms_gateway.py      ← Circuit Breaker + Bulkhead
-│   │   └── projector.py        ← Outbox → MongoDB
-│   └── management/
-│       └── commands/
-│           └── run_projector.py
-├── aldeamo/
-│   └── adapter.py          ← Mock Aldeamo (30% fallo)
-└── twilio/
-    └── adapter.py          ← Mock Twilio (5% fallo, fallback)
+│   │   ├── command_service.py  ← CQRS Write (Asíncrono)
+│   │   ├── query_service.py    ← CQRS Read (MongoDB)
+│   │   ├── sms_gateway.py      ← HTTP Clients, Circuit Breaker + Bulkhead
+│   │   ├── sms_worker.py       ← Procesamiento background (Polling)
+│   │   └── projector.py        ← Sincronizador SQL → MongoDB
+│   └── management/commands/
+│       └── run_all.py      ← Comando unificado de arranque
+└── services/               ← Microservicios externos
+    ├── aldeamo/
+    │   └── main.py         ← API en puerto 8001
+    └── twilio/
+        └── main.py         ← API en puerto 8002
 ```

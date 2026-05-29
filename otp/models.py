@@ -4,6 +4,7 @@ from django.db import models
 
 class OtpStatus(models.TextChoices):
     PENDING = "PENDING", "Pending"
+    PROCESSING = "PROCESSING", "Processing"
     SENT = "SENT", "Sent"
     FAILED = "FAILED", "Failed"
 

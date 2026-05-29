@@ -13,7 +13,7 @@ class SMSRequest(BaseModel):
     phone_number: str
     message: str
 
-ALDEAMO_FAILURE_RATE = 0.5
+ALDEAMO_FAILURE_RATE = 0.3
 
 @app.post("/send")
 def send_sms(req: SMSRequest):

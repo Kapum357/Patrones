@@ -75,11 +75,8 @@ def send_otp(request):
     Header: Authorization: Bearer <token>
     Body: { "phone_number": "+573001234567" }
 
-    Triggers the OTP Command Service:
-      1. Generates OTP
-      2. Writes to SQL + Outbox
-      3. Sends via SMS Gateway (Circuit Breaker + Bulkhead)
-      4. Returns result
+    Enqueues the OTP for async delivery via SMS Worker.
+    Returns 202 ACCEPTED immediately — the SMS is sent in background.
     """
     serializer = SendOtpRequestSerializer(data=request.data)
     if not serializer.is_valid():
@@ -89,8 +86,7 @@ def send_otp(request):
 
     try:
         result = command_service.send_otp(phone_number)
-        http_status = status.HTTP_201_CREATED if result["status"] == "SENT" else status.HTTP_207_MULTI_STATUS
-        return Response(result, status=http_status)
+        return Response(result, status=status.HTTP_202_ACCEPTED)
     except Exception as exc:
         logger.exception(f"Unexpected error in send_otp: {exc}")
         return Response(

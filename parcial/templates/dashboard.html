@@ -391,9 +391,9 @@ flowchart LR
                 return;
             }
 
-            let sent = 0, failed = 0;
+            let queued = 0, errors = 0;
             for (let i = 0; i < count; i++) {
-                statusEl.textContent = `Enviando ${i + 1}/${count}...`;
+                statusEl.textContent = `Encolando ${i + 1}/${count}...`;
                 const phone = `+57300${Math.floor(1000000 + Math.random() * 9000000)}`;
                 try {
                     const resp = await fetch('/api/otp/send/', {
@@ -404,12 +404,12 @@ flowchart LR
                         },
                         body: JSON.stringify({ phone_number: phone })
                     });
-                    const data = await resp.json();
-                    if (data.status === 'SENT') sent++; else failed++;
-                    refreshDashboard();
-                } catch (e) { failed++; }
+                    if (resp.status === 202) queued++; else errors++;
+                } catch (e) { errors++; }
             }
-            statusEl.textContent = `✅ ${sent} OK, ❌ ${failed} Fallos`;
+            statusEl.textContent = `📨 ${queued} encolados, ❌ ${errors} errores`;
+            // Trigger a refresh to start seeing updates from the worker
+            setTimeout(refreshDashboard, 1500);
         }
 
         // Data fetching and UI updates
